@@ -130,51 +130,78 @@ If the improved policy is the same as the old policy, the policy is considered s
 # Policy Evaluation
 # -------------------------------------------------
 
+def policy_evaluation(policy, env, gamma, theta):
+    V = np.zeros(n_states) # Initialize value function V(s) to 0 for all states
+    while True:
+        delta = 0
+        for s in range(n_states):
+            v = 0
+            # For each action according to the current policy
+            for a, action_prob in enumerate(policy[s]):
+                # Sum over possible next states (s'), rewards (r), and probabilities (p)
+                for prob_s_prime, s_prime, reward, _ in env.P[s][a]:
+                    v += action_prob * prob_s_prime * (reward + gamma * V[s_prime])
+            delta = max(delta, np.abs(v - V[s]))
+            V[s] = v
+        if delta < theta:
+            break
+    return V
+
 
 
 # -------------------------------------------------
 # Policy Improvement
 # -------------------------------------------------
 
+def policy_improvement(env, V, gamma):
+    policy = np.zeros([n_states, n_actions]) / n_actions # Initialize policy to be equiprobable random policy
+    for s in range(n_states):
+        action_values = np.zeros(n_actions)
+        for a in range(n_actions):
+            for prob_s_prime, s_prime, reward, _ in env.P[s][a]:
+                action_values[a] += prob_s_prime * (reward + gamma * V[s_prime])
+        best_action = np.argmax(action_values)
+        policy[s] = np.eye(n_actions)[best_action] # Update policy to be greedy
+    return policy
+
 #-------------------------------------------------
 # Policy Iteration
 # -------------------------------------------------
 
+def policy_iteration(env, gamma, theta):
+    policy = np.zeros([n_states, n_actions]) # Start with an arbitrary policy (e.g., all zeros, which will be updated)
+    # Initialize policy to be equiprobable random policy
+    for s in range(n_states):
+        policy[s] = np.ones(n_actions) / n_actions
+
+    # Display initial policy and value function
+    print_policy(policy, title="Initial Policy:")
+    V_initial = policy_evaluation(policy, env, gamma, theta)
+    print_value_function(V_initial, title="Initial Value Function (after first evaluation):")
 
 
+    while True:
+        V = policy_evaluation(policy, env, gamma, theta)
+        new_policy = policy_improvement(env, V, gamma)
+        if np.array_equal(new_policy, policy):
+            break
+        policy = new_policy
+    return policy, V
 
 ```
 
 ## Output
 
-```text
 
-Total policy iterations: 
+<img width="435" height="443" alt="image" src="https://github.com/user-attachments/assets/c7dcb31b-8e89-491c-827c-e2cf2ac18b0e" />
 
-Optimal State-Value Function:
-
-
-Optimal Policy:
-
-```
-
-
-
----
 
 ## Result
 
-```text
+The Policy Iteration algorithm was successfully implemented on the FrozenLake-v1 (4×4) environment using Gymnasium. The algorithm converged after 3 policy iterations, producing the optimal state-value function and the optimal policy for navigating the environment.
 
-
-
-```
----
 
 ## Inference
-```text
 
-
-```
----
+The experiment demonstrates that Policy Iteration efficiently solves a Markov Decision Process by alternately performing policy evaluation and policy improvement until the policy becomes stable. The obtained optimal policy guides the agent to maximize the expected cumulative reward while avoiding hole states and reaching the goal. The resulting state-value function indicates the expected return from each state under the optimal policy.
 
