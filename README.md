@@ -193,7 +193,7 @@ def policy_iteration(env, gamma, theta):
 ## Output
 
 
-<img width="435" height="443" alt="image" src="https://github.com/user-attachments/assets/c7dcb31b-8e89-491c-827c-e2cf2ac18b0e" />
+<img width="1243" height="1266" alt="image" src="https://github.com/user-attachments/assets/04486217-b652-4a79-9cf8-7e9722009c86" />
 
 
 ## Result
